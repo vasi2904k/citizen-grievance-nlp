@@ -23,6 +23,7 @@ from typing import List, Optional
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -82,7 +83,12 @@ class ComplaintRequest(BaseModel):
         ...,
         max_length=10000,
         description="Raw text of citizen complaint",
-        example="Commercial vehicles are frequently double-parked, blocking the main traffic flow..."
+        json_schema_extra={
+            "example": (
+                "Commercial vehicles are frequently double-parked, "
+                "blocking the main traffic flow..."
+            )
+        },
     )
 
     @field_validator("complaint_text")
@@ -678,12 +684,68 @@ class UrgencyCalculator:
 # FASTAPI APPLICATION
 # ════════════════════════════════════════════════════════════════════════════════
 
+# Global state
+model_manager = None
+total_predictions = 0
+metrics_data = {'sentiment': {}, 'department': {}}
+
+
+def _load_metrics(manager: ModelManager) -> dict:
+    """Load metrics matching the configured model variants."""
+    loaded = {'sentiment': {}, 'department': {}}
+    sentiment_metrics_file = (
+        PROJECT_ROOT / 'evaluation' / 'india_sentiment_metrics.json'
+        if manager.sentiment_model_dir.name == 'india_sentiment_model'
+        else PROJECT_ROOT / 'evaluation' / 'sentiment_metrics.json'
+    )
+    try:
+        loaded['sentiment'] = json.loads(
+            sentiment_metrics_file.read_text(encoding="utf-8")
+        )
+    except (FileNotFoundError, json.JSONDecodeError):
+        logger.warning("Sentiment metrics unavailable: %s", sentiment_metrics_file)
+
+    metrics_file = (
+        PROJECT_ROOT / 'evaluation' / 'india_department_metrics.json'
+        if manager.department_variant == 'india_departments'
+        else PROJECT_ROOT / 'evaluation' / 'real_5class_metrics.json'
+        if manager.department_variant == 'real_5class'
+        else PROJECT_ROOT / 'evaluation' / 'real_4class_metrics.json'
+        if manager.department_variant == 'real_4class'
+        else PROJECT_ROOT / 'evaluation' / 'real_3class_metrics.json'
+        if manager.department_variant == 'real_3class'
+        else PROJECT_ROOT / 'evaluation' / 'department_metrics.json'
+    )
+    try:
+        loaded['department'] = json.loads(
+            metrics_file.read_text(encoding="utf-8")
+        )
+    except (FileNotFoundError, json.JSONDecodeError):
+        logger.warning("Department metrics unavailable: %s", metrics_file)
+    return loaded
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Initialize and retain models for the application lifetime."""
+    global model_manager, metrics_data
+    logger.info("Starting up API server...")
+    try:
+        model_manager = ModelManager()
+        metrics_data = _load_metrics(model_manager)
+        logger.info("✅ API ready")
+    except Exception as e:
+        logger.error(f"❌ Startup error: {e}")
+    yield
+
+
 app = FastAPI(
     title="Citizen Grievance Analysis API",
     description="AI-powered API for analyzing citizen complaints and routing to departments",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -697,54 +759,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
-
-# Global state
-model_manager = None
-total_predictions = 0
-metrics_data = {'sentiment': {}, 'department': {}}
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize models on startup"""
-    global model_manager, metrics_data
-    logger.info("Starting up API server...")
-    
-    try:
-        model_manager = ModelManager()
-        
-        # Load metrics
-        try:
-            sentiment_metrics_file = (
-                PROJECT_ROOT / 'evaluation' / 'india_sentiment_metrics.json'
-                if model_manager and model_manager.sentiment_model_dir.name == 'india_sentiment_model'
-                else PROJECT_ROOT / 'evaluation' / 'sentiment_metrics.json'
-            )
-            with open(sentiment_metrics_file) as f:
-                metrics_data['sentiment'] = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            metrics_data['sentiment'] = {}
-        
-        try:
-            metrics_file = (
-                PROJECT_ROOT / 'evaluation' / 'india_department_metrics.json'
-                if model_manager.department_variant == 'india_departments'
-                else PROJECT_ROOT / 'evaluation' / 'real_5class_metrics.json'
-                if model_manager.department_variant == 'real_5class'
-                else PROJECT_ROOT / 'evaluation' / 'real_4class_metrics.json'
-                if model_manager.department_variant == 'real_4class'
-                else PROJECT_ROOT / 'evaluation' / 'real_3class_metrics.json'
-                if model_manager.department_variant == 'real_3class'
-                else PROJECT_ROOT / 'evaluation' / 'department_metrics.json'
-            )
-            with open(metrics_file) as f:
-                metrics_data['department'] = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            metrics_data['department'] = {}
-        
-        logger.info("✅ API ready")
-    except Exception as e:
-        logger.error(f"❌ Startup error: {e}")
 
 
 # ════════════════════════════════════════════════════════════════════════════════
