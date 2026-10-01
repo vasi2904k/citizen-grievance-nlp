@@ -239,6 +239,13 @@ class ModelManager:
             "raasta blocked", "gadiya parked", "gaadi parked",
         )):
             return "negative", 0.90
+        if any(term in normalized_text for term in (
+            "galat dikha", "galat dikh", "boundary", "andar kar li",
+            "koi sunwai nhi", "koi sunwai nahi", "sunwai nahi",
+            "match nhi", "match nahi", "record thik", "record theek",
+            "zameen ka naksha", "patwari ko", "registry ke kagaz",
+        )):
+            return "negative", 0.90
         
         inputs = self.sentiment_tokenizer(
             text,
@@ -445,7 +452,10 @@ class UrgencyCalculator:
         'no response', 'poor', 'bad', 'failed', 'blocked',
         'overflowing', 'no access', 'danger', 'parked', 'parking',
         'double parked', 'double-parked', 'cannot get out',
-        'nikalne ki jagah', 'raasta band', 'raasta blocked'
+        'nikalne ki jagah', 'raasta band', 'raasta blocked',
+        'galat dikha', 'galat dikh', 'boundary', 'andar kar li',
+        'koi sunwai nhi', 'koi sunwai nahi', 'sunwai nahi',
+        'match nhi', 'match nahi', 'patwari ko'
     ]
     
     @staticmethod

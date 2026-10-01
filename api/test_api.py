@@ -112,6 +112,24 @@ class TestPredictEndpoint:
         ]
         assert data["priority"] == "CRITICAL"
 
+    def test_hinglish_land_record_dispute_is_negative_and_high(self):
+        text = (
+            "hamare gaon ki zameen ka naksha online galat dikha rha h, "
+            "padosi ne boundary thodi si andar kar li h aur patwari ko 3 baar "
+            "bolne ke baad bhi koi sunwai nhi hui. registry ke kagaz me survey "
+            "number bhi match nhi kar raha, kripya jaldi se site naap kar record "
+            "thik karwao."
+        )
+        with TestClient(app, raise_server_exceptions=False) as test_client:
+            response = test_client.post("/predict", json={"complaint_text": text})
+        assert response.status_code in [200, 503]
+        if response.status_code == 503:
+            return
+        data = response.json()
+        assert data["predicted_department"] == "revenue_land_records"
+        assert data["sentiment"] == "negative"
+        assert data["priority"] == "HIGH"
+
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)
