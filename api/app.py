@@ -23,9 +23,9 @@ from typing import List, Optional
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import uvicorn
 
@@ -53,6 +53,14 @@ class ComplaintRequest(BaseModel):
         example="Commercial vehicles are frequently double-parked, blocking the main traffic flow..."
     )
 
+    @field_validator("complaint_text")
+    @classmethod
+    def validate_complaint_text(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("complaint_text must contain non-whitespace text")
+        return value
+
 
 class PredictionResponse(BaseModel):
     """Schema for prediction response"""
@@ -76,6 +84,14 @@ class BatchPredictionRequest(BaseModel):
         min_items=1,
         max_items=100
     )
+
+    @field_validator("complaints")
+    @classmethod
+    def validate_complaints(cls, values: List[str]) -> List[str]:
+        cleaned = [value.strip() for value in values]
+        if any(not value for value in cleaned):
+            raise ValueError("complaints must contain non-whitespace text")
+        return cleaned
 
 
 class BatchPredictionResponse(BaseModel):
@@ -198,13 +214,13 @@ class ModelManager:
         try:
             with open(self.models_dir / 'sentiment_metadata.json') as f:
                 self.sentiment_metadata = json.load(f)
-        except:
+        except (FileNotFoundError, json.JSONDecodeError):
             self.sentiment_metadata = {}
         
         try:
             with open(self.models_dir / 'department_metadata.json') as f:
                 self.department_metadata = json.load(f)
-        except:
+        except (FileNotFoundError, json.JSONDecodeError):
             self.department_metadata = {}
     
     def predict_sentiment(self, text: str):
@@ -306,11 +322,6 @@ class ModelManager:
             "bleeding heavily", "khoon", "bht zyada chot", "bht zada chot",
             "bahut zyada chot", "zakhmi", "injured", "unconscious",
             "aadmi dab gaya", "insaan dab gaya", "ambulance",
-        ))
-        electrical_hazard = any(term in normalized_text for term in (
-            "broken electric wire", "broken electricity wire",
-            "electric wire", "bijli ka taar", "bijli taar",
-            "fallen power line", "live wire", "power line",
         ))
         india_rules = {
             "Water Supply & Sewerage": (
@@ -451,23 +462,32 @@ class ModelManager:
     def get_supporting_departments(text: str, primary_department: str) -> List[str]:
         """Identify departments that should coordinate on multi-agency emergencies."""
         normalized_text = text.lower()
-        emergency_scene = any(term in normalized_text for term in (
+        medical_or_scene_emergency = any(term in normalized_text for term in (
             "accident", "road accident", "traffic accident", "hit by",
             "blood loss", "severe bleeding", "heavy bleeding", "bleeding heavily",
             "khoon", "zakhmi", "injured", "unconscious",
         ))
-        if not emergency_scene:
-            return []
-
-        departments = [
-            "roads_transport",
-            "police_public_safety",
-            "public_health",
-        ]
-        if any(term in normalized_text for term in (
+        safeguarding_emergency = any(term in normalized_text for term in (
+            "domestic violence", "maar-peet", "maar pit",
+            "mahila ko ghar", "child protection", "bachcha dara",
+        ))
+        electrical_emergency = any(term in normalized_text for term in (
             "electric wire", "bijli ka taar", "bijli taar", "fallen power line",
             "live wire", "power line", "electricity wire",
-        )):
+        ))
+        if not (medical_or_scene_emergency or safeguarding_emergency or electrical_emergency):
+            return []
+
+        departments = []
+        if medical_or_scene_emergency:
+            departments.extend([
+                "roads_transport",
+                "police_public_safety",
+                "public_health",
+            ])
+        if safeguarding_emergency and "police_public_safety" not in departments:
+            departments.append("police_public_safety")
+        if electrical_emergency:
             departments.append("electricity_power")
         return [department for department in departments if department != primary_department]
 
@@ -700,7 +720,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -729,7 +749,7 @@ async def startup_event():
             )
             with open(sentiment_metrics_file) as f:
                 metrics_data['sentiment'] = json.load(f)
-        except:
+        except (FileNotFoundError, json.JSONDecodeError):
             metrics_data['sentiment'] = {}
         
         try:
@@ -746,7 +766,7 @@ async def startup_event():
             )
             with open(metrics_file) as f:
                 metrics_data['department'] = json.load(f)
-        except:
+        except (FileNotFoundError, json.JSONDecodeError):
             metrics_data['department'] = {}
         
         logger.info("✅ API ready")
@@ -762,7 +782,13 @@ async def startup_event():
 async def health_check():
     """Health check endpoint"""
     return HealthResponse(
-        status="healthy" if model_manager else "unhealthy",
+        status=(
+            "healthy"
+            if model_manager
+            and model_manager.sentiment_loaded
+            and model_manager.department_loaded
+            else "unhealthy"
+        ),
         sentiment_model_loaded=model_manager.sentiment_loaded if model_manager else False,
         department_model_loaded=model_manager.department_loaded if model_manager else False,
         device=model_manager.device if model_manager else "unknown",

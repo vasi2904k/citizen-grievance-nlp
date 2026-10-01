@@ -24,6 +24,10 @@ class TestHealthEndpoint:
         data = response.json()
         assert "sentiment_model_loaded" in data
         assert "department_model_loaded" in data
+        if data["sentiment_model_loaded"] and data["department_model_loaded"]:
+            assert data["status"] == "healthy"
+        else:
+            assert data["status"] == "unhealthy"
 
 class TestMetricsEndpoint:
     def test_metrics_endpoint(self):
@@ -207,7 +211,11 @@ class TestPredictEndpoint:
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)
-        assert response.status_code in [200, 422, 503]
+        assert response.status_code == 422
+
+    def test_predict_whitespace_text(self):
+        response = client.post("/predict", json={"complaint_text": "   "})
+        assert response.status_code == 422
 
     def test_predict_long_text(self):
         long_text = "complaint text " * 100
@@ -239,6 +247,13 @@ class TestBatchPredictEndpoint:
         complaints = ["complaint " + str(i) for i in range(101)]
         payload = {"complaints": complaints}
         response = client.post("/batch_predict", json=payload)
+        assert response.status_code == 422
+
+    def test_batch_predict_rejects_blank_complaint(self):
+        response = client.post(
+            "/batch_predict",
+            json={"complaints": ["valid complaint", "   "]},
+        )
         assert response.status_code == 422
 
 class TestUrgencyCalculator:

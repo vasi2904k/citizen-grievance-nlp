@@ -60,6 +60,10 @@ curl http://localhost:8000/health
 }
 ```
 
+The API reports `status: "unhealthy"` when either model is unavailable. Model
+artifacts are local/generated files and are not committed to Git; deployers must
+mount or provision the configured sentiment and department model directories.
+
 **Status Codes:**
 - `200` - API is healthy and operational
 - `503` - Service unavailable
@@ -270,3 +274,7 @@ The India department and sentiment models use curated authored examples until
 independently labelled Indian grievance records are available. The NYC
 `Non-Complaint` class likewise uses curated neutral/service-information
 examples. These data limitations should be considered before production use.
+The India department holdout is currently only a prototype evaluation
+(approximately 44% accuracy and 39% macro-F1), so expand and independently
+review the Indian grievance dataset before relying on standalone classifier
+confidence.
