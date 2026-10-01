@@ -225,6 +225,8 @@ class ModelManager:
             "emergency rescue", "must be evacuated", "accident", "severe bleeding",
             "heavy bleeding", "bleeding heavily", "blood loss", "khoon",
             "bht zada khoon", "bahut zyada khoon", "zakhmi", "injured",
+            "chingari", "saans lene me dikkat", "saans nahi aa",
+            "maar-peet", "maar pit", "domestic violence", "mahila ko ghar",
         )):
             return "critical", 0.98
         if any(term in normalized_text for term in (
@@ -239,6 +241,19 @@ class ModelManager:
             "raasta blocked", "gadiya parked", "gaadi parked",
         )):
             return "negative", 0.90
+        if any(term in normalized_text for term in (
+            "paani nhi", "pani nhi", "paani nahi", "pani nahi",
+            "repair nhi", "mana kar diya", "quota dikha",
+            "keede lag", "dhuan", "dhuaan", "badbu", "pareshaan",
+            "pension", "jawab nhi", "jawab nahi", "naali overflow",
+            "ganda paani", "gandi gali", "toot gaye", "dikkat hoti",
+        )):
+            return "negative", 0.90
+        if any(term in normalized_text for term in (
+            "documents chahiye", "timing kya hai", "kaunse documents",
+            "kaun se documents", "janam praman patra banwane",
+        )):
+            return "neutral", 0.95
         if any(term in normalized_text for term in (
             "galat dikha", "galat dikh", "boundary", "andar kar li",
             "koi sunwai nhi", "koi sunwai nahi", "sunwai nahi",
@@ -290,6 +305,9 @@ class ModelManager:
             "Water Supply & Sewerage": (
                 "water supply", "drinking water", "handpump", "sewage",
                 "sewer", "drainage", "water tanker", "water connection",
+                "nal ka paani", "nal ka pani", "peene ka pani",
+                "peene ka paani", "paani nhi", "pani nhi", "paani nahi",
+                "pani nahi", "naali overflow", "ganda paani", "ganda pani",
             ),
             "Roads & Transport": (
                 "pothole", "traffic signal", "bus stop", "road", "highway",
@@ -310,7 +328,9 @@ class ModelManager:
             ),
             "Environment & Pollution": (
                 "pollution", "plastic waste", "garbage", "industrial discharge",
-                "waste burning", "mosquito", "contamination",
+                "waste burning", "mosquito", "contamination", "factory ka kala dhuan",
+                "factory ka kala dhuaan", "dhuan", "dhuaan", "badbu",
+                "saans lene me dikkat",
             ),
             "Police & Public Safety": (
                 "police", "stolen", "crime", "violent", "chain snatching",
@@ -319,10 +339,12 @@ class ModelManager:
             "Women & Child Welfare": (
                 "domestic violence", "child labour", "child labor", "anganwadi",
                 "women protection", "child protection", "shelter",
+                "maar-peet", "maar pit", "mahila ko ghar", "bachcha dara",
             ),
             "Social Welfare": (
                 "pension", "elderly", "disability certificate", "welfare",
                 "social security", "old age", "food or medicines",
+                "meri pension", "pension nahi", "pension nhi",
             ),
             "Education": (
                 "school", "student", "scholarship", "teacher", "classroom",
@@ -331,6 +353,7 @@ class ModelManager:
             "Municipal Services": (
                 "birth certificate", "property tax", "street cleaning",
                 "municipal office", "drain maintenance", "civic",
+                "janam praman patra", "naali safai", "sadak par jama",
             ),
             "Revenue & Land Records": (
                 "land mutation", "land record", "revenue record", "tehsil",
@@ -338,7 +361,8 @@ class ModelManager:
             ),
             "Agriculture & Rural Development": (
                 "farmer", "crops", "irrigation canal", "seed", "agriculture",
-                "harvest", "village irrigation",
+                "harvest", "village irrigation", "khet", "fasal", "keede",
+                "sinchai", "nahar me paani", "gaon ki fasal",
             ),
             "Public Distribution System": (
                 "ration shop", "ration card", "food grains", "fair price shop",
@@ -354,6 +378,12 @@ class ModelManager:
                 department = label
                 rule_match = True
                 break
+        if any(term in normalized_text for term in (
+            "khet", "fasal", "keede lag", "sinchai", "nahar me paani",
+            "gaon ki fasal", "farmer", "crops",
+        )):
+            department = "Agriculture & Rural Development"
+            rule_match = True
         if medical_emergency:
             department = "Public Health"
             rule_match = True
@@ -445,6 +475,8 @@ class UrgencyCalculator:
         'accident', 'severe bleeding', 'heavy bleeding', 'bleeding heavily',
         'blood loss', 'khoon', 'bht zada khoon', 'bahut zyada khoon',
         'zakhmi', 'injured'
+        , 'chingari', 'saans lene me dikkat', 'maar-peet', 'maar pit',
+        'mahila ko ghar', 'bachcha dara'
     ]
     
     HIGH_KEYWORDS = [
@@ -456,6 +488,10 @@ class UrgencyCalculator:
         'galat dikha', 'galat dikh', 'boundary', 'andar kar li',
         'koi sunwai nhi', 'koi sunwai nahi', 'sunwai nahi',
         'match nhi', 'match nahi', 'patwari ko'
+        , 'paani nhi', 'pani nhi', 'paani nahi', 'pani nahi',
+        'repair nhi', 'repair nahi', 'mana kar diya', 'dhuan', 'dhuaan',
+        'badbu', 'pension nahi', 'pension nhi', 'naali overflow',
+        'ganda paani', 'ganda pani', 'keede lag'
     ]
     
     @staticmethod

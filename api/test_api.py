@@ -130,6 +130,43 @@ class TestPredictEndpoint:
         assert data["sentiment"] == "negative"
         assert data["priority"] == "HIGH"
 
+    def test_unique_hinglish_department_cases(self):
+        cases = [
+            (
+                "hamare ward me 4 din se nal ka paani nhi aa rha, peene ka pani bhi nhi hai",
+                "water_supply_sewerage",
+                "negative",
+            ),
+            (
+                "khet me fasal par ajeeb keede lag gaye hain aur sinchai ki nahar me paani nhi aa raha",
+                "agriculture_rural_development",
+                "negative",
+            ),
+            (
+                "factory ka kala dhuan raat bhar aa raha h, saans lene me dikkat aur badbu hai",
+                "environment_pollution",
+                "critical",
+            ),
+            (
+                "ghar ke saamne naali overflow ho rhi h aur ganda paani sadak par jama hai",
+                "water_supply_sewerage",
+                "negative",
+            ),
+            (
+                "mahila ko ghar me maar-peet ho rhi h, bachcha bhi dara hua hai",
+                "women_child_welfare",
+                "critical",
+            ),
+        ]
+        with TestClient(app, raise_server_exceptions=False) as test_client:
+            for text, department, sentiment in cases:
+                response = test_client.post("/predict", json={"complaint_text": text})
+                assert response.status_code in [200, 503]
+                if response.status_code == 200:
+                    data = response.json()
+                    assert data["predicted_department"] == department
+                    assert data["sentiment"] == sentiment
+
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)
