@@ -16,6 +16,7 @@ outputs/.ipynb_checkpoints/
 
 # Downloaded/local evaluation data and generated reports
 data/raw/nyc311_real_*.csv
+data/raw/india_government_complaints_gcd/
 data/evaluation/nyc311_real_*.csv
 evaluation/*_predictions.csv
 evaluation/*_metrics.json

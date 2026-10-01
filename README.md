@@ -120,6 +120,9 @@ The India department dataset currently contains 140 curated authored examples
 improve tolerance for spelling variation and Hinglish wording. The data is
 suitable for application prototyping, but production deployment should replace
 it with substantially larger, independently labelled Indian grievance records.
+An additional locally downloaded MIT-licensed Hindi/English government-complaint
+audio source is documented in `docs/INDIA_DATA_SOURCES.md`; it remains outside
+the training set until its transcripts and category mapping are reviewed.
 
 # 6. Start the backend API
 cd api && python app.py
