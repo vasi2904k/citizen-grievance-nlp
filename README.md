@@ -127,6 +127,7 @@ To prepare its separate review queue and run a baseline without merging it:
 
 ```bash
 python scripts/prepare_gcd_derived_dataset.py
+python scripts/review_gcd_dataset.py
 python scripts/evaluate_gcd_baseline.py
 ```
 

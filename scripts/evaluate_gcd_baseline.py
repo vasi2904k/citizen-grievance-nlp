@@ -10,7 +10,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report, f1_score
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data" / "evaluation" / "india_gcd_review_queue.csv"
+DATA = ROOT / "data" / "evaluation" / "india_gcd_reviewed.csv"
 MODEL = ROOT / "models" / "india_departments"
 OUTPUT = ROOT / "evaluation" / "india_gcd_baseline_metrics.json"
 
@@ -35,17 +35,22 @@ def evaluate(frame: pd.DataFrame, pipeline, encoder) -> dict:
 
 def main() -> None:
     frame = pd.read_csv(DATA)
+    approved = frame[
+        frame["review_status"] == "assistant_reviewed_approved"
+    ].copy()
     pipeline = joblib.load(MODEL / "pipeline.joblib")
     encoder = joblib.load(MODEL / "label_encoder.joblib")
     metrics = {
         "dataset": "GCD Government Complaints Dataset",
         "dataset_role": "separate synthetic TTS baseline; not merged into training",
-        "review_status": "synthetic_tts_pending_manual_review",
+        "review_status": "assistant_reviewed_approved_only",
+        "total_rows_before_review_filter": int(len(frame)),
+        "rows_excluded_for_second_review": int(len(frame) - len(approved)),
         "mapping": "source_category_to_project_department",
-        "overall": evaluate(frame, pipeline, encoder),
+        "overall": evaluate(approved, pipeline, encoder),
         "by_language": {
             language: evaluate(group, pipeline, encoder)
-            for language, group in frame.groupby("language", sort=True)
+            for language, group in approved.groupby("language", sort=True)
         },
     }
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)

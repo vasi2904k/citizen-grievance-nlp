@@ -30,6 +30,15 @@ category-to-department mapping is a provisional review suggestion, not a ground
 truth label. The queue is kept separate from
 `data/evaluation/india_department_examples.csv` and is not used for training.
 
+The assistant review output is generated at
+`data/evaluation/india_gcd_reviewed.csv`. It contains 108
+`assistant_reviewed_approved` rows and 12
+`assistant_reviewed_needs_second_review` rows. The latter are generic
+transcripts whose source category is plausible but whose text does not contain
+enough service-specific evidence for safe standalone routing evaluation.
+Independent human review is still required before any rows are promoted to a
+training or benchmark split.
+
 ## Baseline result before merging
 
 Run:
@@ -39,12 +48,12 @@ python scripts/prepare_gcd_derived_dataset.py
 python scripts/evaluate_gcd_baseline.py
 ```
 
-The current model baseline on all 120 rows is approximately **36.7% accuracy
-and 20.0% macro-F1**. Results differ sharply by language: English is
-approximately **56.7% accuracy**, while Hindi is approximately **16.7%**.
-These figures are diagnostic only because the source is TTS-generated, the
-mapping has not received manual review, and the source covers only six of the
-fourteen project departments.
+On the 108 assistant-approved rows, the current model baseline is approximately
+**38.9% accuracy and 21.1% macro-F1**. Results differ sharply by language:
+English is approximately **63.0% accuracy**, while Hindi is approximately
+**14.8%**. These figures are diagnostic only because the source is TTS-generated,
+the review is assistant-assisted rather than independent human validation, and
+the source covers only six of the fourteen project departments.
 
 ## Reproduction
 
