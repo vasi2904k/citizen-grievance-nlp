@@ -32,7 +32,7 @@ curl http://localhost:8000/
     "stats": "GET /stats",
     "predict": "POST /predict",
     "batch_predict": "POST /batch_predict",
-    "metrics": "GET /metrics",
+    "metrics": "GET /metrics"
   }
 }
 ```
@@ -60,9 +60,11 @@ curl http://localhost:8000/health
 }
 ```
 
-The API reports `status: "unhealthy"` when either model is unavailable. Model
-artifacts are local/generated files and are not committed to Git; deployers must
-mount or provision the configured sentiment and department model directories.
+The API reports `status: "unhealthy"` when either model is unavailable. The
+health endpoint still returns HTTP 200 so monitoring can inspect the response
+body; prediction endpoints return HTTP 503 while required models are missing.
+Model artifacts are local/generated files and are not committed to Git;
+deployers must mount or provision the configured model directories.
 
 **Status Codes:**
 - `200` - API is healthy and operational
@@ -85,10 +87,20 @@ curl http://localhost:8000/stats
 ```json
 {
   "departments": [
-    "Environment",
-    "Non-Complaint",
-    "Social & Health Services",
-    "Transport"
+    "Water Supply & Sewerage",
+    "Roads & Transport",
+    "Electricity & Power",
+    "Public Health",
+    "Environment & Pollution",
+    "Police & Public Safety",
+    "Women & Child Welfare",
+    "Social Welfare",
+    "Education",
+    "Municipal Services",
+    "Revenue & Land Records",
+    "Agriculture & Rural Development",
+    "Public Distribution System",
+    "Non-Complaint"
   ],
   "priority_tiers": [
     "P1",
@@ -104,6 +116,7 @@ curl http://localhost:8000/stats
   ],
   "models": {
     "routing_model": "Logistic Regression",
+    "routing_model_variant": "india_departments",
     "sentiment_model": "DistilBERT"
   },
   "timestamp": "2026-04-05T12:00:00.000000"
@@ -119,7 +132,8 @@ curl http://localhost:8000/stats
 
 **Endpoint:** `POST /predict`
 
-**Description:** Simplified single prediction endpoint (legacy compatibility)
+**Description:** Analyze one complaint and return department, sentiment, urgency,
+priority, and recommended response information.
 
 **Request:**
 ```bash
@@ -132,12 +146,12 @@ curl -X POST http://localhost:8000/predict \
 ```json
 {
   "complaint_text": "Road has huge pothole. URGENT!",
-  "predicted_department": "Transport",
+  "predicted_department": "roads_transport",
   "supporting_departments": [],
   "department_confidence": 0.9542,
   "sentiment": "critical",
   "sentiment_confidence": 0.9123,
-  "urgency_score": 9.25,
+  "urgency_score": 8.82,
   "priority": "CRITICAL",
   "recommended_action": "Dispatch emergency team immediately.",
   "timestamp": "2026-04-05T12:30:45"
@@ -150,7 +164,7 @@ curl -X POST http://localhost:8000/predict \
 
 **Endpoint:** `POST /batch_predict`
 
-**Description:** Process multiple complaints with simplified response format (legacy compatibility)
+**Description:** Analyze up to 100 complaint texts in one request.
 
 **Request:**
 ```bash
@@ -172,12 +186,12 @@ curl -X POST http://localhost:8000/batch_predict \
   "predictions": [
     {
       "complaint_text": "Road has huge pothole. URGENT!",
-      "predicted_department": "Transport",
+      "predicted_department": "roads_transport",
       "supporting_departments": [],
       "department_confidence": 0.9542,
       "sentiment": "critical",
       "sentiment_confidence": 0.9123,
-      "urgency_score": 9.25,
+      "urgency_score": 8.82,
       "priority": "CRITICAL",
       "recommended_action": "Dispatch emergency team immediately.",
       "timestamp": "2026-04-05T12:30:45"
@@ -226,6 +240,17 @@ curl http://localhost:8000/metrics
   "timestamp": "2026-04-05T12:00:00.000000"
 }
 ```
+
+## Response fields and scales
+
+- `predicted_department` is the primary department identifier in `snake_case`.
+- `supporting_departments` contains additional agencies for coordinated cases.
+- `department_confidence` and `sentiment_confidence` are values from `0` to `1`.
+- `urgency_score` is returned by the API on a `0` to `10` scale.
+- The frontend converts `urgency_score` to a `0` to `100` display scale.
+- `priority` is one of `CRITICAL`, `HIGH`, `MEDIUM`, or `LOW`.
+- Complaint text must contain non-whitespace text and be no longer than 10,000
+  characters. Batch requests contain 1 to 100 complaints.
 
 ## Interactive API Documentation
 

@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI - Test and Build
 
 on:
   push:
@@ -23,6 +23,14 @@ jobs:
         pip install -r requirements.txt
         pip install -r api/requirements.txt
 
+    - name: Verify model artifact contract
+      run: |
+        python scripts/verify_model_artifacts.py
+        if python scripts/verify_model_artifacts.py --root "$RUNNER_TEMP/empty-model-root" --strict; then
+          echo "Expected strict verification to fail when artifacts are absent"
+          exit 1
+        fi
+
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -37,7 +45,7 @@ jobs:
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
-        file: ./coverage.xml
+        file: ./api/coverage.xml
 
   build:
     runs-on: ubuntu-latest
@@ -50,16 +58,3 @@ jobs:
 
     - name: Run container tests
       run: docker run --rm citizen-grievance-api:latest pytest test_api.py
-
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Deploy to production
-      run: |
-        echo "Deploying to production..."
-        # kubectl apply -f k8s/

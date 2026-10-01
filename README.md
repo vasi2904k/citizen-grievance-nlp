@@ -181,10 +181,10 @@ or the deployment platform's secret store, and configure the API's
 
 | Priority | Score | SLA | Description |
 |----------|-------|-----|-------------|
-| P1 — Critical | 80 – 100 | 2 hours | Life-threatening / immediate danger |
-| P2 — High | 60 – 79 | 24 hours | Urgent infrastructure issues |
-| P3 — Medium | 40 – 59 | 3 days | Standard maintenance / repair |
-| P4 — Low | 0 – 39 | 7 days | Routine requests |
+| P1 — Critical | API 8.0 – 10.0 / UI 80 – 100 | 2 hours | Life-threatening / immediate danger |
+| P2 — High | API 6.0 – 7.99 / UI 60 – 79 | 24 hours | Urgent infrastructure issues |
+| P3 — Medium | API 3.0 – 5.99 / UI 30 – 59 | 3 days | Standard maintenance / repair |
+| P4 — Low | API 0 – 2.99 / UI 0 – 29 | 7 days | Routine requests |
 
 ## Testing
 
@@ -195,7 +195,7 @@ cd api && python -m pytest test_api.py -v
 # Manual curl test
 curl -X POST http://localhost:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"description": "Water pipe broken, flooding street"}'
+  -d '{"complaint_text": "Water pipe broken, flooding street"}'
 
 # Frontend smoke test
 cd frontend && streamlit run app.py
@@ -206,7 +206,7 @@ cd frontend && streamlit run app.py
 
 | Problem | Solution |
 |---------|----------|
-| Models not found | Run all notebooks in order first |
+| Models not found | Run the model provisioning commands and `python scripts/verify_model_artifacts.py --strict` |
 | Port already in use | `python -m uvicorn api.app:app --port 8001` |
 | CUDA out of memory | `export CUDA_VISIBLE_DEVICES=""` to force CPU |
 | Import errors | `pip install --upgrade -r requirements.txt` |
@@ -227,6 +227,11 @@ same artifacts into `/app/models` through your deployment's artifact store.
 The build runs a non-strict manifest check so CI can build the degraded image;
 production deployment should run `python scripts/verify_model_artifacts.py
 --strict` before serving traffic.
+
+This repository's GitHub Actions workflow currently performs dependency
+installation, linting, tests, artifact-contract checks, and Docker builds. It
+does not deploy to production; connect the built image to your chosen
+deployment platform in a separate environment-specific workflow.
 
 ## Contributors
 
