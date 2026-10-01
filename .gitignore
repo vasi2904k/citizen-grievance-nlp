@@ -48,3 +48,6 @@ Thumbs.db
 
 # Local improvement planning
 area of improvements.md
+
+# Local Streamlit secrets
+frontend/.streamlit/secrets.toml

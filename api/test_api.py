@@ -5,10 +5,30 @@ import pytest
 import json
 import warnings
 from fastapi.testclient import TestClient
-from app import app, UrgencyCalculator
+from app import app, UrgencyCalculator, _parse_allowed_origins, _parse_bool
 warnings.filterwarnings("ignore")
 
 client = TestClient(app, raise_server_exceptions=False)
+
+class TestSecurityConfiguration:
+    def test_cors_defaults_to_local_frontend(self):
+        assert _parse_allowed_origins(None) == [
+            "http://localhost:8501",
+            "http://127.0.0.1:8501",
+        ]
+
+    def test_cors_rejects_wildcard(self):
+        with pytest.raises(ValueError):
+            _parse_allowed_origins("*")
+
+    def test_cors_rejects_non_http_origin(self):
+        with pytest.raises(ValueError):
+            _parse_allowed_origins("file:///frontend")
+
+    def test_credentials_default_to_disabled(self):
+        assert _parse_bool(None) is False
+        assert _parse_bool("true") is True
+        assert _parse_bool("off") is False
 
 class TestHealthEndpoint:
     def test_health_check(self):

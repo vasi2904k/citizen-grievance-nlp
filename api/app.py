@@ -22,6 +22,7 @@ import logging
 from typing import List, Optional
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,6 +41,35 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _parse_allowed_origins(value: Optional[str]) -> List[str]:
+    """Parse and validate configured browser origins."""
+    configured = value or "http://localhost:8501,http://127.0.0.1:8501"
+    origins = [origin.strip().rstrip("/") for origin in configured.split(",") if origin.strip()]
+    if not origins:
+        raise ValueError("CORS_ALLOWED_ORIGINS must contain at least one origin")
+    for origin in origins:
+        parsed = urlparse(origin)
+        if origin == "*" or not parsed.scheme or not parsed.netloc:
+            raise ValueError(
+                "CORS_ALLOWED_ORIGINS must contain explicit http(s) origins; "
+                "wildcards are not allowed"
+            )
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError("CORS_ALLOWED_ORIGINS only supports http and https origins")
+    return origins
+
+
+def _parse_bool(value: Optional[str], default: bool = False) -> bool:
+    if value is None:
+        return default
+    normalized = value.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError("CORS_ALLOW_CREDENTIALS must be a boolean value")
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -657,12 +687,15 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+cors_origins = _parse_allowed_origins(os.getenv("CORS_ALLOWED_ORIGINS"))
+cors_credentials = _parse_bool(os.getenv("CORS_ALLOW_CREDENTIALS"), default=False)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=cors_origins,
+    allow_credentials=cors_credentials,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Global state

@@ -156,7 +156,13 @@ text before model inference.
 ```bash
 API_BASE_URL=http://localhost:8000
 USE_GPU=1          # 0 for CPU, 1 for GPU
+CORS_ALLOWED_ORIGINS=http://localhost:8501,http://127.0.0.1:8501
+CORS_ALLOW_CREDENTIALS=false
 ```
+
+`CORS_ALLOWED_ORIGINS` must contain explicit `http://` or `https://` origins;
+wildcards are rejected. Credentials are disabled by default and should only be
+enabled when authenticated cross-origin requests are intentionally required.
 
 ### Streamlit Secrets
 
@@ -166,6 +172,10 @@ Create `frontend/.streamlit/secrets.toml`:
 API_BASE_URL = "http://localhost:8000"
 USE_GPU = 0
 ```
+
+Do not put production credentials in the repository. Use the local secrets file
+or the deployment platform's secret store, and configure the API's
+`CORS_ALLOWED_ORIGINS` with the deployed frontend URL.
 
 ## Priority System
 
