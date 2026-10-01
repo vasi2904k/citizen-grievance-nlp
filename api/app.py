@@ -220,6 +220,11 @@ class ModelManager:
         )):
             return "neutral", 0.95
         if any(term in normalized_text for term in (
+            "anganwadi", "poshan ka khana", "poshan ka ration",
+            "worker register", "galat entry",
+        )):
+            return "negative", 0.90
+        if any(term in normalized_text for term in (
             "live electric wire", "child is trapped", "bridge has collapsed",
             "violent attack", "unconscious", "major fire", "immediate danger",
             "emergency rescue", "must be evacuated", "accident", "severe bleeding",
@@ -247,6 +252,12 @@ class ModelManager:
             "keede lag", "dhuan", "dhuaan", "badbu", "pareshaan",
             "pension", "jawab nhi", "jawab nahi", "naali overflow",
             "ganda paani", "gandi gali", "toot gaye", "dikkat hoti",
+            "traffic jam", "action nhi", "paisa approve", "account me nahi",
+            "status pending", "arrears", "receipt number", "sadak beh gayi",
+            "tractor nahi", "kachra", "plastic jama", "machhar",
+            "naam galat", "correction", "street light band", "girne se darte",
+            "correction chahiye", "sudhar chahiye",
+            "sadak beh gayi", "baarish me beh", "beh gayi",
         )):
             return "negative", 0.90
         if any(term in normalized_text for term in (
@@ -330,7 +341,7 @@ class ModelManager:
                 "pollution", "plastic waste", "garbage", "industrial discharge",
                 "waste burning", "mosquito", "contamination", "factory ka kala dhuan",
                 "factory ka kala dhuaan", "dhuan", "dhuaan", "badbu",
-                "saans lene me dikkat",
+                "saans lene me dikkat", "kachra", "plastic jama", "machhar",
             ),
             "Police & Public Safety": (
                 "police", "stolen", "crime", "violent", "chain snatching",
@@ -348,12 +359,14 @@ class ModelManager:
             ),
             "Education": (
                 "school", "student", "scholarship", "teacher", "classroom",
-                "toilet in school", "education",
+                "toilet in school", "education", "scholarship ka paisa",
+                "student ke account", "status pending",
             ),
             "Municipal Services": (
                 "birth certificate", "property tax", "street cleaning",
                 "municipal office", "drain maintenance", "civic",
                 "janam praman patra", "naali safai", "sadak par jama",
+                "property tax", "arrears", "receipt number", "street light",
             ),
             "Revenue & Land Records": (
                 "land mutation", "land record", "revenue record", "tehsil",
@@ -366,7 +379,8 @@ class ModelManager:
             ),
             "Public Distribution System": (
                 "ration shop", "ration card", "food grains", "fair price shop",
-                "subsidised", "subsidized", "kerosene quota",
+                "subsidised", "subsidized", "kerosene quota", "ration card",
+                "naam galat", "correction",
             ),
             "Non-Complaint": (
                 "general information", "please explain", "how to apply",
@@ -383,6 +397,11 @@ class ModelManager:
             "gaon ki fasal", "farmer", "crops",
         )):
             department = "Agriculture & Rural Development"
+            rule_match = True
+        if any(term in normalized_text for term in (
+            "sadak beh gayi", "tractor nahi", "farm road", "kheti ki zameen tak",
+        )):
+            department = "Roads & Transport"
             rule_match = True
         if medical_emergency:
             department = "Public Health"

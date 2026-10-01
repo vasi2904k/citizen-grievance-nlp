@@ -167,6 +167,43 @@ class TestPredictEndpoint:
                     assert data["predicted_department"] == department
                     assert data["sentiment"] == sentiment
 
+    def test_second_unique_hinglish_batch_cases(self):
+        cases = [
+            (
+                "property tax bhar diya tha lekin portal par abhi bhi arrears dikha raha h",
+                "municipal_services",
+                "negative",
+            ),
+            (
+                "gaon me kheti ki zameen tak pahunchne wali sadak baarish me beh gayi hai",
+                "roads_transport",
+                "negative",
+            ),
+            (
+                "mohalle ke park me kachra aur plastic jama hai, machhar bahut ho gaye hain",
+                "environment_pollution",
+                "negative",
+            ),
+            (
+                "ration card me meri family ka naam galat chadh gaya hai, correction chahiye",
+                "public_distribution_system",
+                "negative",
+            ),
+            (
+                "anganwadi centre me bachcho ko poshan ka khana time par nahi milta",
+                "women_child_welfare",
+                "negative",
+            ),
+        ]
+        with TestClient(app, raise_server_exceptions=False) as test_client:
+            for text, department, sentiment in cases:
+                response = test_client.post("/predict", json={"complaint_text": text})
+                assert response.status_code in [200, 503]
+                if response.status_code == 200:
+                    data = response.json()
+                    assert data["predicted_department"] == department
+                    assert data["sentiment"] == sentiment
+
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)
