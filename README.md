@@ -106,9 +106,11 @@ python api/app.py
 $env:DEPARTMENT_MODEL_VARIANT = "legacy_4class"
 python api/app.py
 
-The India department examples and sentiment examples are curated authored data.
-They are suitable for application prototyping, but production deployment should
-replace them with independently labelled Indian grievance records.
+The India department dataset currently contains 140 curated authored examples
+(10 per department). The trainer combines word and character TF-IDF features to
+improve tolerance for spelling variation and Hinglish wording. The data is
+suitable for application prototyping, but production deployment should replace
+it with substantially larger, independently labelled Indian grievance records.
 
 # 5. Start the backend API
 cd api && python app.py

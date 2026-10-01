@@ -16,7 +16,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report, f1_score
 from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.preprocessing import LabelEncoder
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,13 +45,30 @@ def main() -> None:
     pipeline = Pipeline(
         [
             (
-                "tfidf",
-                TfidfVectorizer(
-                    ngram_range=(1, 2),
-                    min_df=1,
-                    sublinear_tf=True,
-                    strip_accents="unicode",
-                    max_features=30000,
+                "features",
+                FeatureUnion(
+                    [
+                        (
+                            "word",
+                            TfidfVectorizer(
+                                ngram_range=(1, 2),
+                                min_df=1,
+                                sublinear_tf=True,
+                                strip_accents="unicode",
+                                max_features=30000,
+                            ),
+                        ),
+                        (
+                            "character",
+                            TfidfVectorizer(
+                                analyzer="char_wb",
+                                ngram_range=(3, 5),
+                                min_df=1,
+                                sublinear_tf=True,
+                                max_features=30000,
+                            ),
+                        ),
+                    ]
                 ),
             ),
             (
@@ -70,7 +87,7 @@ def main() -> None:
     train_predictions = pipeline.predict(train["grievance_text"])
     predictions = pipeline.predict(test["grievance_text"])
     metrics = {
-        "model": "TF-IDF + Logistic Regression",
+        "model": "Word and character TF-IDF + Logistic Regression",
         "dataset_type": "curated India-oriented examples",
         "split": "stratified 75/25 holdout",
         "train_rows": int(len(train)),

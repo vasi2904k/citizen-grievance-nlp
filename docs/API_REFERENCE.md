@@ -275,6 +275,6 @@ independently labelled Indian grievance records are available. The NYC
 `Non-Complaint` class likewise uses curated neutral/service-information
 examples. These data limitations should be considered before production use.
 The India department holdout is currently only a prototype evaluation
-(approximately 44% accuracy and 39% macro-F1), so expand and independently
-review the Indian grievance dataset before relying on standalone classifier
-confidence.
+(approximately 57% accuracy and 53% macro-F1 after expanding to 140 curated
+examples and adding character features). Expand and independently review the
+Indian grievance dataset before relying on standalone classifier confidence.

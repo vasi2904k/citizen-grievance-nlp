@@ -69,3 +69,73 @@ grievance_text,expected_department
 "Families are being asked for unofficial payments to release their monthly ration.",Public Distribution System
 "Can you tell me the helpline number for reporting a municipal water issue?",Non-Complaint
 "I need the application form and deadline for the district social-welfare scheme.",Non-Complaint
+"The overhead tank has been empty for a week and the water tanker skips our street.",Water Supply & Sewerage
+"Dirty water is coming through the household taps after the pipeline repair.",Water Supply & Sewerage
+"The sewer cover is missing outside the bus stop and wastewater is flowing into the lane.",Water Supply & Sewerage
+"Please repair the borewell because the village school has no safe drinking water.",Water Supply & Sewerage
+"Nagar palika ka paani teen din se nahi aa raha, tanker bhi time par nahi aaya.",Water Supply & Sewerage
+"The bridge approach has cracked and two-wheelers are slipping during the monsoon.",Roads & Transport
+"The bus conductor charged extra fare and refused to issue a ticket.",Roads & Transport
+"A pothole outside the emergency ward is causing ambulances to slow down.",Roads & Transport
+"The pedestrian crossing paint has disappeared near the government school.",Roads & Transport
+"Road par bade gaddhe hain aur raat me street traffic bahut unsafe ho gaya hai.",Roads & Transport
+"The electricity bill has doubled without any change in consumption and needs correction.",Electricity & Power
+"Our transformer has been sparking for two nights and the feeder trips repeatedly.",Electricity & Power
+"The street power pole has exposed wires within reach of children.",Electricity & Power
+"Solar street lights installed in the village are not charging or switching on.",Electricity & Power
+"Bijli ka meter kharab hai aur complaint number ke baad bhi reading theek nahi hui.",Electricity & Power
+"The sub-centre has no nurse on duty and pregnant patients are being sent away.",Public Health
+"The vaccination camp was cancelled without notice and children missed their doses.",Public Health
+"The ambulance helpline did not respond when a patient needed transport to the district hospital.",Public Health
+"The medicine stock at the primary health centre has been unavailable since last month.",Public Health
+"Sarkari aspataal me doctor nahi milta aur gareeb patients ko baar baar wapas bhejte hain.",Public Health
+"Construction debris is being dumped into the village pond and the water has turned black.",Environment & Pollution
+"The brick kiln smoke is entering nearby houses every evening and causing breathing trouble.",Environment & Pollution
+"Loud industrial noise continues throughout the night near the residential colony.",Environment & Pollution
+"The municipal garbage vehicle has not visited our lane and waste is attracting stray animals.",Environment & Pollution
+"Nadi me factory ka chemical paani chhoda ja raha hai, machhliyan mar rahi hain.",Environment & Pollution
+"A group is selling illegal liquor near the school and residents need police intervention.",Police & Public Safety
+"The police complaint about repeated threats has not received an acknowledgement.",Police & Public Safety
+"Unlicensed fireworks are being stored in a shop beside residential houses.",Police & Public Safety
+"A road-rage incident has blocked the junction and police assistance is required.",Police & Public Safety
+"Mohalle me raat ko choriyaan badh gayi hain, police patrolling badhai jaye.",Police & Public Safety
+"A girl facing harassment on her way to school needs protection and counselling.",Women & Child Welfare
+"The shelter home has no female counsellor available for survivors seeking support.",Women & Child Welfare
+"A minor is being employed at a workshop and the family needs child welfare assistance.",Women & Child Welfare
+"The maternity benefit application has been rejected without an explanation.",Women & Child Welfare
+"Bachchi ko school ke raste pareshaan kiya ja raha hai, turant mahila help desk ki madad chahiye.",Women & Child Welfare
+"The old-age pension portal shows payment approved but no money has reached the beneficiary.",Social Welfare
+"A person with a disability needs help obtaining the required certificate and benefits.",Social Welfare
+"The community shelter has turned away a homeless senior citizen during heavy rain.",Social Welfare
+"The social-welfare office has not responded to my monthly assistance application.",Social Welfare
+"Vidhwa pension do mahine se nahi mili, verification complete hone ke baad bhi status pending hai.",Social Welfare
+"The government school has not supplied textbooks to students despite the new academic year starting.",Education
+"The classroom has no desks and children are sitting on the floor during lessons.",Education
+"The school bus route was withdrawn and students from the village cannot attend regularly.",Education
+"The examination form portal is failing and the submission deadline is approaching.",Education
+"School me teacher ki kami hai aur bachcho ki padhai poore session se prabhavit hai.",Education
+"The municipal trade licence application has been pending beyond the stated service time.",Municipal Services
+"Street sweeping is irregular and silt from the drain is being left on the footpath.",Municipal Services
+"The public toilet near the market is locked and has no water or maintenance.",Municipal Services
+"The online death certificate request is stuck despite all documents being uploaded.",Municipal Services
+"Nagar palika ne kachra collection ka schedule badla par hamari gali me gaadi nahi aati.",Municipal Services
+"The village map does not show our legally purchased plot and needs official correction.",Revenue & Land Records
+"The tehsil has not issued the income certificate needed for a land-related application.",Revenue & Land Records
+"A forged mutation appears in the record and the original owner is seeking an inquiry.",Revenue & Land Records
+"The e-district land portal is showing the wrong khasra number for our farm.",Revenue & Land Records
+"Patwari ko kai baar batane ke baad bhi zameen ki naap aur boundary record me update nahi hui.",Revenue & Land Records
+"The crop insurance claim was rejected even though the field inspection documented flood damage.",Agriculture & Rural Development
+"The seed distribution centre ran out of certified seeds before serving registered farmers.",Agriculture & Rural Development
+"A broken minor canal is preventing irrigation for several small farms.",Agriculture & Rural Development
+"Farmers need veterinary support because livestock are becoming ill across the village.",Agriculture & Rural Development
+"Kisan credit aur fasal bima ke liye adhikari se sampark nahi ho pa raha hai.",Agriculture & Rural Development
+"The fair price shop opened late and distributed less grain than the ration entitlement.",Public Distribution System
+"My ration card is active online but the dealer says my family is not on the list.",Public Distribution System
+"The dealer has not displayed the stock and price information required at the outlet.",Public Distribution System
+"The e-POS machine rejects fingerprints repeatedly and elderly beneficiaries cannot collect ration.",Public Distribution System
+"Ration dukandar mahine ka anaj poora nahi deta aur extra paise maangta hai.",Public Distribution System
+"What documents are required to register a complaint about a broken streetlight?",Non-Complaint
+"Please provide the office timing and helpline for applying for a caste certificate.",Non-Complaint
+"I want to know whether senior citizens qualify for the current welfare scheme.",Non-Complaint
+"Can you explain how to track my submitted municipal service request?",Non-Complaint
+"Mujhe scholarship ke liye eligibility aur application ki last date ki jaankari chahiye.",Non-Complaint
