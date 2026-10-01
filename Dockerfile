@@ -6,6 +6,10 @@ COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY api/ ./api/
+COPY config/ ./config/
+COPY scripts/verify_model_artifacts.py ./scripts/verify_model_artifacts.py
+
+RUN python scripts/verify_model_artifacts.py
 
 WORKDIR /app/api
 

@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "default_department_variant": "india_departments",
+  "default_sentiment_directory": "models/india_sentiment_model",
+  "artifacts": [
+    {
+      "name": "india_department_pipeline",
+      "path": "models/india_departments/pipeline.joblib",
+      "provision_command": "python scripts/train_india_department_model.py"
+    },
+    {
+      "name": "india_department_label_encoder",
+      "path": "models/india_departments/label_encoder.joblib",
+      "provision_command": "python scripts/train_india_department_model.py"
+    },
+    {
+      "name": "india_sentiment_config",
+      "path": "models/india_sentiment_model/config.json",
+      "provision_command": "python scripts/finetune_sentiment_model.py"
+    },
+    {
+      "name": "india_sentiment_weights",
+      "path": "models/india_sentiment_model/model.safetensors",
+      "provision_command": "python scripts/finetune_sentiment_model.py"
+    },
+    {
+      "name": "india_sentiment_tokenizer",
+      "path": "models/india_sentiment_model/tokenizer.json",
+      "provision_command": "python scripts/finetune_sentiment_model.py"
+    },
+    {
+      "name": "india_sentiment_tokenizer_config",
+      "path": "models/india_sentiment_model/tokenizer_config.json",
+      "provision_command": "python scripts/finetune_sentiment_model.py"
+    }
+  ]
+}

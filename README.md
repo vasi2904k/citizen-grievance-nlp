@@ -65,7 +65,16 @@ pip install -r requirements.txt
 pip install -r api/requirements.txt
 pip install -r frontend/requirements-frontend.txt
 
-# 4. Train models (the routing model excludes target/post-resolution leakage)
+# 4. Provision and verify the local model artifacts
+python scripts/train_india_department_model.py
+python scripts/finetune_sentiment_model.py
+python scripts/verify_model_artifacts.py --strict
+# Optional: record exact artifact hashes for a deployment
+python scripts/verify_model_artifacts.py \
+  --strict \
+  --write-checksums evaluation/model_artifact_checksums.json
+
+# 5. Train models (the routing model excludes target/post-resolution leakage)
 python scripts/train_department_model.py
 # Run the sentiment notebooks separately when sentiment data is available.
 
@@ -112,14 +121,30 @@ improve tolerance for spelling variation and Hinglish wording. The data is
 suitable for application prototyping, but production deployment should replace
 it with substantially larger, independently labelled Indian grievance records.
 
-# 5. Start the backend API
+# 6. Start the backend API
 cd api && python app.py
 # → http://localhost:8000  |  Swagger UI: http://localhost:8000/docs
 
-# 6. Start the frontend (new terminal)
+# 7. Start the frontend (new terminal)
 cd frontend && streamlit run app.py
 # → http://localhost:8501
 ```
+
+### Model artifacts
+
+Model binaries are intentionally not committed to Git because the sentiment
+weights are hundreds of megabytes. The required default artifacts and their
+reproducible provisioning commands are recorded in
+`config/model_artifacts.json`.
+
+Run the verifier before starting a prediction-ready deployment:
+
+```bash
+python scripts/verify_model_artifacts.py --strict
+```
+
+The API can still start in degraded mode when artifacts are absent; `/health`
+reports the missing model state and prediction requests return `503`.
 
 ## Configuration
 
@@ -180,8 +205,15 @@ cd frontend && streamlit run app.py
 
 ```bash
 docker build -t grievance-api .
-docker run -p 8000:8000 grievance-api
+docker run -p 8000:8000 -v "$PWD/models:/app/models:ro" grievance-api
 ```
+
+The Docker build deliberately excludes local model binaries from the build
+context. Mount a provisioned `models` directory as shown above, or copy the
+same artifacts into `/app/models` through your deployment's artifact store.
+The build runs a non-strict manifest check so CI can build the degraded image;
+production deployment should run `python scripts/verify_model_artifacts.py
+--strict` before serving traffic.
 
 ## Contributors
 
