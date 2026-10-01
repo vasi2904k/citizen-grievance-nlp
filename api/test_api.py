@@ -91,6 +91,27 @@ class TestPredictEndpoint:
             "police_public_safety",
         ]
 
+    def test_complex_hinglish_emergency_coordinates_electricity(self):
+        text = (
+            "mere mohalle ke main road par kal raat se ek bada ped girra hua h, "
+            "uske niche ek aadmi dab gaya tha aur abhi bhi usko bht zyada chot lagi h, "
+            "khoon ruk nhi raha. road puri tarah block h aur paas me bijli ka taar "
+            "bhi toot ke latak rha h. ambulance ko aane me dikkat ho rhi h"
+        )
+        with TestClient(app, raise_server_exceptions=False) as test_client:
+            response = test_client.post("/predict", json={"complaint_text": text})
+        assert response.status_code in [200, 503]
+        if response.status_code == 503:
+            return
+        data = response.json()
+        assert data["predicted_department"] == "public_health"
+        assert data["supporting_departments"] == [
+            "roads_transport",
+            "police_public_safety",
+            "electricity_power",
+        ]
+        assert data["priority"] == "CRITICAL"
+
     def test_predict_empty_text(self):
         payload = {"complaint_text": ""}
         response = client.post("/predict", json=payload)

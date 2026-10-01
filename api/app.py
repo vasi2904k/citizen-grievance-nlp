@@ -268,6 +268,17 @@ class ModelManager:
         department = self.department_encoder.inverse_transform([pred_class])[0]
         normalized_text = text.lower()
         rule_match = False
+        medical_emergency = any(term in normalized_text for term in (
+            "accident", "blood loss", "severe bleeding", "heavy bleeding",
+            "bleeding heavily", "khoon", "bht zyada chot", "bht zada chot",
+            "bahut zyada chot", "zakhmi", "injured", "unconscious",
+            "aadmi dab gaya", "insaan dab gaya", "ambulance",
+        ))
+        electrical_hazard = any(term in normalized_text for term in (
+            "broken electric wire", "broken electricity wire",
+            "electric wire", "bijli ka taar", "bijli taar",
+            "fallen power line", "live wire", "power line",
+        ))
         india_rules = {
             "Water Supply & Sewerage": (
                 "water supply", "drinking water", "handpump", "sewage",
@@ -336,11 +347,17 @@ class ModelManager:
                 department = label
                 rule_match = True
                 break
+        if medical_emergency:
+            department = "Public Health"
+            rule_match = True
         if self.department_variant == "india_departments" and any(term in normalized_text for term in (
             "power cut", "power outage", "electricity", "transformer",
-            "meter", "fallen power line", "electric wire",
+            "meter", "fallen power line", "electric wire", "bijli ka taar",
         )):
             department = "Electricity & Power"
+            rule_match = True
+        if medical_emergency:
+            department = "Public Health"
             rule_match = True
         # Preserve legacy high-signal routing terms for the NYC model.
         if self.department_variant != "india_departments":
@@ -391,6 +408,11 @@ class ModelManager:
             "police_public_safety",
             "public_health",
         ]
+        if any(term in normalized_text for term in (
+            "electric wire", "bijli ka taar", "bijli taar", "fallen power line",
+            "live wire", "power line", "electricity wire",
+        )):
+            departments.append("electricity_power")
         return [department for department in departments if department != primary_department]
 
 
