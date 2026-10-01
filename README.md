@@ -145,6 +145,9 @@ python scripts/verify_model_artifacts.py --strict
 
 The API can still start in degraded mode when artifacts are absent; `/health`
 reports the missing model state and prediction requests return `503`.
+Routing keywords and precedence terms are maintained in
+`api/routing_rules.py`, and request bodies reject empty or oversized complaint
+text before model inference.
 
 ## Configuration
 

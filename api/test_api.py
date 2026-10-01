@@ -223,6 +223,10 @@ class TestPredictEndpoint:
         response = client.post("/predict", json=payload)
         assert response.status_code in [200, 503]
 
+    def test_predict_rejects_oversized_text(self):
+        response = client.post("/predict", json={"complaint_text": "x" * 10001})
+        assert response.status_code == 422
+
 class TestBatchPredictEndpoint:
     def test_batch_predict_valid_request(self):
         payload = {"complaints": ["Water pipe is broken", "Road has pothole"]}
@@ -253,6 +257,13 @@ class TestBatchPredictEndpoint:
         response = client.post(
             "/batch_predict",
             json={"complaints": ["valid complaint", "   "]},
+        )
+        assert response.status_code == 422
+
+    def test_batch_predict_rejects_oversized_complaint(self):
+        response = client.post(
+            "/batch_predict",
+            json={"complaints": ["x" * 10001]},
         )
         assert response.status_code == 422
 

@@ -28,6 +28,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import uvicorn
+from routing_rules import INDIA_RULES, MEDICAL_EMERGENCY_TERMS
 
 # ════════════════════════════════════════════════════════════════════════════════
 # LOGGING CONFIGURATION
@@ -49,6 +50,7 @@ class ComplaintRequest(BaseModel):
     """Schema for single complaint prediction request"""
     complaint_text: str = Field(
         ...,
+        max_length=10000,
         description="Raw text of citizen complaint",
         example="Commercial vehicles are frequently double-parked, blocking the main traffic flow..."
     )
@@ -81,8 +83,8 @@ class BatchPredictionRequest(BaseModel):
     complaints: List[str] = Field(
         ...,
         description="List of complaint texts",
-        min_items=1,
-        max_items=100
+        min_length=1,
+        max_length=100
     )
 
     @field_validator("complaints")
@@ -91,6 +93,8 @@ class BatchPredictionRequest(BaseModel):
         cleaned = [value.strip() for value in values]
         if any(not value for value in cleaned):
             raise ValueError("complaints must contain non-whitespace text")
+        if any(len(value) > 10000 for value in cleaned):
+            raise ValueError("each complaint must not exceed 10000 characters")
         return cleaned
 
 
@@ -124,6 +128,25 @@ class MetricsResponse(BaseModel):
 
 class ModelManager:
     """Load and manage models"""
+
+    @staticmethod
+    def _load_metadata(path: Path, name: str) -> dict:
+        try:
+            metadata = json.loads(path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            logger.warning("%s metadata not found: %s", name, path)
+            return {}
+        except json.JSONDecodeError as exc:
+            logger.error("Invalid %s metadata JSON at %s: %s", name, path, exc)
+            return {}
+        if not isinstance(metadata, dict):
+            logger.error("%s metadata must be a JSON object: %s", name, path)
+            return {}
+        labels = metadata.get("labels")
+        if labels is not None and not isinstance(labels, dict):
+            logger.error("%s metadata labels must be an object: %s", name, path)
+            return {}
+        return metadata
     
     def __init__(self, models_dir: Optional[str] = None):
         self.models_dir = Path(models_dir) if models_dir else PROJECT_ROOT / 'models' / 'final_models'
@@ -211,17 +234,14 @@ class ModelManager:
             self.department_loaded = False
         
         # Load metadata
-        try:
-            with open(self.models_dir / 'sentiment_metadata.json') as f:
-                self.sentiment_metadata = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.sentiment_metadata = {}
-        
-        try:
-            with open(self.models_dir / 'department_metadata.json') as f:
-                self.department_metadata = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.department_metadata = {}
+        self.sentiment_metadata = self._load_metadata(
+            self.models_dir / "sentiment_metadata.json",
+            "sentiment",
+        )
+        self.department_metadata = self._load_metadata(
+            self.models_dir / "department_metadata.json",
+            "department",
+        )
     
     def predict_sentiment(self, text: str):
         """Predict sentiment"""
@@ -317,88 +337,8 @@ class ModelManager:
         department = self.department_encoder.inverse_transform([pred_class])[0]
         normalized_text = text.lower()
         rule_match = False
-        medical_emergency = any(term in normalized_text for term in (
-            "accident", "blood loss", "severe bleeding", "heavy bleeding",
-            "bleeding heavily", "khoon", "bht zyada chot", "bht zada chot",
-            "bahut zyada chot", "zakhmi", "injured", "unconscious",
-            "aadmi dab gaya", "insaan dab gaya", "ambulance",
-        ))
-        india_rules = {
-            "Water Supply & Sewerage": (
-                "water supply", "drinking water", "handpump", "sewage",
-                "sewer", "drainage", "water tanker", "water connection",
-                "nal ka paani", "nal ka pani", "peene ka pani",
-                "peene ka paani", "paani nhi", "pani nhi", "paani nahi",
-                "pani nahi", "naali overflow", "ganda paani", "ganda pani",
-            ),
-            "Roads & Transport": (
-                "pothole", "traffic signal", "bus stop", "road", "highway",
-                "traffic", "public transport", "street crossing", "parked",
-                "parking", "double parked", "double-parked", "blocked road",
-                "blocked roadway", "no access", "cannot get out",
-                "nikalne ki jagah", "raasta", "gadiya", "gaadi",
-            ),
-            "Electricity & Power": (
-                "power cut", "power outage", "electricity", "transformer",
-                "meter", "fallen power line", "electric wire",
-            ),
-            "Public Health": (
-                "hospital", "health centre", "health center", "ambulance",
-                "doctor", "medicine", "medical", "clinic", "accident",
-                "bleeding", "blood", "blood loss", "khoon", "zakhmi",
-                "injured", "insaan ka khoon",
-            ),
-            "Environment & Pollution": (
-                "pollution", "plastic waste", "garbage", "industrial discharge",
-                "waste burning", "mosquito", "contamination", "factory ka kala dhuan",
-                "factory ka kala dhuaan", "dhuan", "dhuaan", "badbu",
-                "saans lene me dikkat", "kachra", "plastic jama", "machhar",
-            ),
-            "Police & Public Safety": (
-                "police", "stolen", "crime", "violent", "chain snatching",
-                "unsafe", "attack", "law and order",
-            ),
-            "Women & Child Welfare": (
-                "domestic violence", "child labour", "child labor", "anganwadi",
-                "women protection", "child protection", "shelter",
-                "maar-peet", "maar pit", "mahila ko ghar", "bachcha dara",
-            ),
-            "Social Welfare": (
-                "pension", "elderly", "disability certificate", "welfare",
-                "social security", "old age", "food or medicines",
-                "meri pension", "pension nahi", "pension nhi",
-            ),
-            "Education": (
-                "school", "student", "scholarship", "teacher", "classroom",
-                "toilet in school", "education", "scholarship ka paisa",
-                "student ke account", "status pending",
-            ),
-            "Municipal Services": (
-                "birth certificate", "property tax", "street cleaning",
-                "municipal office", "drain maintenance", "civic",
-                "janam praman patra", "naali safai", "sadak par jama",
-                "property tax", "arrears", "receipt number", "street light",
-            ),
-            "Revenue & Land Records": (
-                "land mutation", "land record", "revenue record", "tehsil",
-                "encroachment", "property record", "survey",
-            ),
-            "Agriculture & Rural Development": (
-                "farmer", "crops", "irrigation canal", "seed", "agriculture",
-                "harvest", "village irrigation", "khet", "fasal", "keede",
-                "sinchai", "nahar me paani", "gaon ki fasal",
-            ),
-            "Public Distribution System": (
-                "ration shop", "ration card", "food grains", "fair price shop",
-                "subsidised", "subsidized", "kerosene quota", "ration card",
-                "naam galat", "correction",
-            ),
-            "Non-Complaint": (
-                "general information", "please explain", "how to apply",
-                "required documents", "office address", "working hours",
-            ),
-        }
-        for label, terms in india_rules.items():
+        medical_emergency = any(term in normalized_text for term in MEDICAL_EMERGENCY_TERMS)
+        for label, terms in INDIA_RULES.items():
             if any(term in normalized_text for term in terms):
                 department = label
                 rule_match = True
