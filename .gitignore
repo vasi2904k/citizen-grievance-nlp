@@ -44,3 +44,6 @@ evaluation/india_department_holdout.csv
 logs/
 .DS_Store
 Thumbs.db
+
+# Local improvement planning
+area of improvements.md
