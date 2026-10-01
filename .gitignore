@@ -34,6 +34,8 @@ evaluation/real_3class_*.csv
 evaluation/real_3class_*.json
 evaluation/india_department_holdout.csv
 evaluation/model_artifact_checksums.json
+data/evaluation/india_gcd_review_queue.csv
+evaluation/india_gcd_baseline_metrics.json
 
 # Model weights and binaries
 *.safetensors

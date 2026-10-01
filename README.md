@@ -123,6 +123,12 @@ it with substantially larger, independently labelled Indian grievance records.
 An additional locally downloaded MIT-licensed Hindi/English government-complaint
 audio source is documented in `docs/INDIA_DATA_SOURCES.md`; it remains outside
 the training set until its transcripts and category mapping are reviewed.
+To prepare its separate review queue and run a baseline without merging it:
+
+```bash
+python scripts/prepare_gcd_derived_dataset.py
+python scripts/evaluate_gcd_baseline.py
+```
 
 # 6. Start the backend API
 cd api && python app.py
