@@ -13,6 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "evaluation" / "india_gcd_reviewed.csv"
 MODEL = ROOT / "models" / "india_departments"
 OUTPUT = ROOT / "evaluation" / "india_gcd_baseline_metrics.json"
+REPRESENTED_CLASSES = [
+    "Water Supply & Sewerage",
+    "Roads & Transport",
+    "Electricity & Power",
+    "Public Health",
+    "Environment & Pollution",
+    "Public Distribution System",
+]
 
 
 def evaluate(frame: pd.DataFrame, pipeline, encoder) -> dict:
@@ -21,12 +29,19 @@ def evaluate(frame: pd.DataFrame, pipeline, encoder) -> dict:
     return {
         "rows": int(len(frame)),
         "accuracy": float(accuracy_score(expected, predicted)),
-        "macro_f1": float(f1_score(expected, predicted, average="macro")),
+        "macro_f1_six_class": float(
+            f1_score(
+                expected,
+                predicted,
+                labels=REPRESENTED_CLASSES,
+                average="macro",
+            )
+        ),
         "classification_report": classification_report(
             expected,
             predicted,
-            labels=encoder.classes_,
-            target_names=encoder.classes_,
+            labels=REPRESENTED_CLASSES,
+            target_names=REPRESENTED_CLASSES,
             output_dict=True,
             zero_division=0,
         ),
@@ -47,6 +62,7 @@ def main() -> None:
         "total_rows_before_review_filter": int(len(frame)),
         "rows_excluded_for_second_review": int(len(frame) - len(approved)),
         "mapping": "source_category_to_project_department",
+        "represented_classes": REPRESENTED_CLASSES,
         "overall": evaluate(approved, pipeline, encoder),
         "by_language": {
             language: evaluate(group, pipeline, encoder)

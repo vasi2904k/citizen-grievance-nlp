@@ -1,0 +1,31 @@
+grievance_text,source_category,language,mapped_department,review_status
+"हमारे मोहल्ले में तीन दिनों से पानी की आपूर्ति बंद है।",water_supply,hindi,Water Supply & Sewerage,assistant_authored_reviewed
+"नल से गंदा पानी आ रहा है और पीने योग्य नहीं है।",water_supply,hindi,Water Supply & Sewerage,assistant_authored_reviewed
+"गांव में पानी का टैंकर समय पर नहीं आता है।",water_supply,hindi,Water Supply & Sewerage,assistant_authored_reviewed
+"पानी का दबाव बहुत कम है और टंकी नहीं भरती।",water_supply,hindi,Water Supply & Sewerage,assistant_authored_reviewed
+"पानी की पाइपलाइन में रिसाव से सड़क पर पानी जमा है।",water_supply,hindi,Water Supply & Sewerage,assistant_authored_reviewed
+"हमारे इलाके में रोज बिजली कटौती होती है और शिकायत के बाद भी सुधार नहीं हुआ।",electricity,hindi,Electricity & Power,assistant_authored_reviewed
+"ट्रांसफार्मर से चिंगारी निकलती है और बच्चों के लिए खतरा है।",electricity,hindi,Electricity & Power,assistant_authored_reviewed
+"बिजली का बिल गलत आया है और मीटर की जांच चाहिए।",electricity,hindi,Electricity & Power,assistant_authored_reviewed
+"गांव की स्ट्रीट लाइटें कई महीनों से बंद हैं।",electricity,hindi,Electricity & Power,assistant_authored_reviewed
+"बिजली के खंभे टूटे हैं और तार नीचे लटक रहे हैं।",electricity,hindi,Electricity & Power,assistant_authored_reviewed
+"मुख्य सड़क पर बड़े गड्ढे हैं और वाहन चलाना खतरनाक है।",roads_transport,hindi,Roads & Transport,assistant_authored_reviewed
+"सरकारी बस तय स्टॉप पर नहीं रुकती और यात्रियों को परेशानी होती है।",roads_transport,hindi,Roads & Transport,assistant_authored_reviewed
+"बारिश के बाद गांव की सड़क बह गई और एम्बुलेंस नहीं आ सकती।",roads_transport,hindi,Roads & Transport,assistant_authored_reviewed
+"ऑटो चालक निर्धारित किराए से अधिक पैसे मांगते हैं।",roads_transport,hindi,Roads & Transport,assistant_authored_reviewed
+"चौराहे की ट्रैफिक लाइट खराब है और दुर्घटना का खतरा है।",roads_transport,hindi,Roads & Transport,assistant_authored_reviewed
+"सरकारी अस्पताल में डॉक्टर समय पर नहीं आते हैं।",healthcare,hindi,Public Health,assistant_authored_reviewed
+"प्राथमिक स्वास्थ्य केंद्र में जरूरी दवाएं उपलब्ध नहीं हैं।",healthcare,hindi,Public Health,assistant_authored_reviewed
+"रात में मरीज के लिए एम्बुलेंस उपलब्ध नहीं हुई।",healthcare,hindi,Public Health,assistant_authored_reviewed
+"अस्पताल में जांच की रिपोर्ट कई दिनों से नहीं मिली।",healthcare,hindi,Public Health,assistant_authored_reviewed
+"टीकाकरण केंद्र में बच्चों के टीके खत्म हो गए हैं।",healthcare,hindi,Public Health,assistant_authored_reviewed
+"हमारी गली में कूड़ा नियमित रूप से नहीं उठाया जाता।",sanitation,hindi,Environment & Pollution,assistant_authored_reviewed
+"खुले नाले से बदबू आती है और मच्छर बढ़ रहे हैं।",sanitation,hindi,Environment & Pollution,assistant_authored_reviewed
+"कूड़ेदान भर गए हैं और कचरा सड़क पर फैल रहा है।",sanitation,hindi,Environment & Pollution,assistant_authored_reviewed
+"सफाई कर्मचारी कई दिनों से हमारी गली में नहीं आया।",sanitation,hindi,Environment & Pollution,assistant_authored_reviewed
+"कचरे का अलग-अलग संग्रह और निस्तारण नहीं किया जा रहा है।",sanitation,hindi,Environment & Pollution,assistant_authored_reviewed
+"राशन की दुकान में इस महीने का अनाज पूरा नहीं दिया गया।",ration_aadhar,hindi,Public Distribution System,assistant_authored_reviewed
+"राशन कार्ड में परिवार के सदस्य का नाम गलत दर्ज है।",ration_aadhar,hindi,Public Distribution System,assistant_authored_reviewed
+"आधार केंद्र पर सुधार के लिए बार-बार चक्कर लगाने पड़ रहे हैं।",ration_aadhar,hindi,Public Distribution System,assistant_authored_reviewed
+"बायोमेट्रिक मशीन काम नहीं करती और बुजुर्गों को राशन नहीं मिलता।",ration_aadhar,hindi,Public Distribution System,assistant_authored_reviewed
+"राशन डीलर सरकारी अनाज के लिए अतिरिक्त पैसे मांगता है।",ration_aadhar,hindi,Public Distribution System,assistant_authored_reviewed

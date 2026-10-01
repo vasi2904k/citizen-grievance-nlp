@@ -37,6 +37,12 @@ evaluation/model_artifact_checksums.json
 data/evaluation/india_gcd_review_queue.csv
 data/evaluation/india_gcd_reviewed.csv
 evaluation/india_gcd_baseline_metrics.json
+evaluation/india_gcd_system_comparison.json
+evaluation/india_gcd_auxiliary_split.csv
+models/india_gcd_auxiliary/
+data/evaluation/india_gcd_second_review_queue.csv
+data/evaluation/india_hindi_benchmark_candidates.csv
+evaluation/india_independent_benchmark_metrics.json
 
 # Model weights and binaries
 *.safetensors

@@ -128,8 +128,22 @@ To prepare its separate review queue and run a baseline without merging it:
 ```bash
 python scripts/prepare_gcd_derived_dataset.py
 python scripts/review_gcd_dataset.py
+python scripts/train_gcd_auxiliary_model.py
+python scripts/evaluate_gcd_systems.py
 python scripts/evaluate_gcd_baseline.py
+python scripts/prepare_independent_hindi_benchmark.py
+python scripts/evaluate_independent_benchmark.py
 ```
+
+The GCD source is evaluated as a separate six-class diagnostic dataset. On its
+untouched 27-row source-grouped test split, the current 14-class model scored
+40.7% accuracy / 44.6% six-class macro-F1, the auxiliary multilingual model
+scored 48.1% / 44.8%, and the rules-plus-auxiliary diagnostic scored 85.2% /
+83.6%. Hindi accuracy improved from 23.1% with the current model to 76.9% with
+the auxiliary and 92.3% with the hybrid system. These results are not production claims: the source is
+TTS-generated, assistant-reviewed, small, and covers only six departments.
+Production integration is deferred until an independent reviewer validates a
+larger benchmark with separate English, Devanagari Hindi, and Hinglish splits.
 
 # 6. Start the backend API
 cd api && python app.py
