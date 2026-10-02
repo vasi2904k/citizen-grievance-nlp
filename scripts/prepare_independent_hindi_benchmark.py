@@ -22,6 +22,21 @@ DEPARTMENTS = {
     "ration_aadhar": "Public Distribution System",
 }
 
+NO_RESPONSE_TEXTS = {
+    "Complaints are raised but no action is taken.",
+    "We had to wait for hours, and no one responded.",
+    "Staff is uncooperative and careless.",
+    "The system is always down when we visit the office.",
+    "The helpline number is always busy or unreachable.",
+    "Despite repeated complaints, the issue is not resolved.",
+    "कई बार शिकायत की, लेकिन कोई कार्रवाई नहीं होती।",
+    "स्टाफ असहयोगी और लापरवाह है।",
+    "लैब जांच की रिपोर्ट बिना कारण देर से मिलती है।",
+    "जब भी हम कार्यालय जाते हैं, सिस्टम डाउन रहता है।",
+    "हेल्पलाइन नंबर हमेशा व्यस्त या अप्राप्य रहता है।",
+    "कई बार शिकायत की, लेकिन कोई समाधान नहीं हुआ।",
+}
+
 # These are candidate examples only. Every row remains pending independent review.
 PHRASES = {
     "water_supply": {
@@ -207,14 +222,29 @@ def main() -> None:
         "grievance_text", "source_category", "mapped_department", "language",
         "source_file", "source_group", "template_id", "review_status",
         "independent_review_status", "independent_reviewer",
-        "independent_review_notes", "final_department",
+        "independent_review_notes", "final_department", "escalation_flag",
+        "escalation_intent", "escalation_reason",
     ]
+    reviewed["escalation_flag"] = reviewed["grievance_text"].isin(NO_RESPONSE_TEXTS)
+    reviewed["escalation_intent"] = reviewed["escalation_flag"].map(
+        {True: "no_response_escalation", False: ""}
+    )
+    reviewed["escalation_reason"] = reviewed["escalation_flag"].map(
+        {
+            True: "VOC indicates prior complaint, delayed response, "
+            "unresponsive staff/system, or unresolved issue.",
+            False: "",
+        }
+    )
     queue = reviewed[queue_columns]
     REVIEW_QUEUE.parent.mkdir(parents=True, exist_ok=True)
     queue.to_csv(REVIEW_QUEUE, index=False, quoting=csv.QUOTE_MINIMAL)
 
     candidates = make_candidates()
     candidates["independent_review_status"] = "pending_independent_review"
+    candidates["escalation_flag"] = False
+    candidates["escalation_intent"] = ""
+    candidates["escalation_reason"] = ""
     candidates = candidates[queue_columns]
     benchmark = pd.concat([queue, candidates], ignore_index=True)
     benchmark.to_csv(BENCHMARK, index=False, quoting=csv.QUOTE_MINIMAL)

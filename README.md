@@ -133,6 +133,9 @@ python scripts/evaluate_gcd_systems.py
 python scripts/evaluate_gcd_baseline.py
 python scripts/prepare_independent_hindi_benchmark.py
 python scripts/evaluate_independent_benchmark.py
+python scripts/review_independent_benchmark_assistant.py
+python scripts/second_pass_review_benchmark.py
+python scripts/evaluate_assistant_benchmark.py
 ```
 
 The GCD source is evaluated as a separate six-class diagnostic dataset. On its
@@ -144,6 +147,8 @@ the auxiliary and 92.3% with the hybrid system. These results are not production
 TTS-generated, assistant-reviewed, small, and covers only six departments.
 Production integration is deferred until an independent reviewer validates a
 larger benchmark with separate English, Devanagari Hindi, and Hinglish splits.
+See `docs/INDEPENDENT_REVIEW_GUIDE.md` for the exact fields, allowed labels,
+review rules, and the 12 generic rows requiring special attention.
 
 # 6. Start the backend API
 cd api && python app.py

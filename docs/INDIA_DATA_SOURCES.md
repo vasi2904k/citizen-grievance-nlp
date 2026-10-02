@@ -105,6 +105,25 @@ After review, run:
 python scripts/evaluate_independent_benchmark.py
 ```
 
+For a provisional assistant-only diagnostic, run:
+
+```bash
+python scripts/review_independent_benchmark_assistant.py
+python scripts/evaluate_assistant_benchmark.py
+```
+
+This output is explicitly marked assistant-reviewed and is not an independent
+benchmark. It must not be used to approve production integration.
+
+The optional second assistant pass is reproducible with:
+
+```bash
+python scripts/second_pass_review_benchmark.py
+```
+
+It confirms 324 service-specific rows and keeps the 12 generic source rows
+held. It does not remove the independent-review gate.
+
 The evaluator reports six-class macro-F1, per-class precision/recall,
 confusion matrices, and English/Hindi/Hinglish metrics for the current
 14-class model, six-class auxiliary model, and hybrid system. Training and
